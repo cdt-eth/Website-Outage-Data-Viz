@@ -1,41 +1,28 @@
 import React, { useState, useEffect } from "react";
 import Plot from "react-plotly.js";
 
-const Bar = ({ page }) => {
-  const [data, setData] = useState([]);
-  const [crash, setCrash] = useState(false);
+const Chart = ({ page, data }) => {
+  const [isCrashed, setIsCrashed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pageData, setPageData] = useState([]);
 
   const crashButton = () => {
-    setCrash((crash) => !crash);
+    setIsCrashed((isCrashed) => !isCrashed);
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("/data.json");
-      const data = await res.json();
+    const pageData = data
+      .filter((d) => d.current_page === `/${page}`)
+      .filter((d) => d.did_aww_snap === isCrashed);
 
-      data.forEach(
-        (data) => (data.bytes_used = (data.bytes_used / 1048576).toFixed(2))
-      );
-
-      data.forEach(
-        (data) =>
-          (data.timestamp = new Date(data.timestamp * 1000).toISOString())
-      );
-
-      const pageData = data.filter((d) => d.current_page === `/${page}`);
-      const crashedData = pageData.filter((d) => d.did_aww_snap === crash);
-
-      setData(crashedData);
-    };
-
-    fetchData();
-  }, [crash, page]);
+    setPageData(pageData);
+    setIsLoading(false);
+  }, [data, isCrashed, page]);
 
   const d = [
     {
-      x: data.map((item) => item.timestamp),
-      y: data.map((item) => item.bytes_used),
+      x: pageData.map((item) => item.timestamp),
+      y: pageData.map((item) => item.bytes_used),
       hoverinfo: "x+y",
       type: "scatter",
       fill: "tozeroy",
@@ -48,7 +35,9 @@ const Bar = ({ page }) => {
 
   return (
     <div className="container">
-      {data && (
+      {isLoading ? (
+        <h3>Loading...</h3>
+      ) : (
         <Plot
           data={d}
           layout={{
@@ -72,11 +61,11 @@ const Bar = ({ page }) => {
         <button
           onClick={crashButton}
           type="button"
-          className={`btn ${crash === false ? "error" : "good"}`}
+          className={`btn ${isCrashed === false ? "error" : "good"}`}
         >
-          {`set crash to ${!crash}`}
+          {`set crash to ${!isCrashed}`}
         </button>
-        {crash === true && (
+        {isCrashed === true && (
           <>
             <h3># of crashes: {data.length}</h3>
 
@@ -84,7 +73,8 @@ const Bar = ({ page }) => {
               Total Memory Leak:{" "}
               {(
                 data
-                  .map((item) => parseInt(item.bytes_used))
+                  // .map((item) => parseInt(item.bytes_used))
+                  .map((item) => +item.bytes_used)
                   .reduce((prev, next) => prev + next) / 1000
               ).toFixed(2)}
               GB
@@ -96,4 +86,4 @@ const Bar = ({ page }) => {
   );
 };
 
-export default Bar;
+export default Chart;
