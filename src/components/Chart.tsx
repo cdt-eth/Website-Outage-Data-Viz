@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Plot from "react-plotly.js";
+import { Item } from "../App";
 
-const Chart = ({ page, data }) => {
-  const [isCrashed, setIsCrashed] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+interface ChartProps {
+  page: any;
+  data?: any;
+}
+
+const Chart = ({ page, data }: ChartProps) => {
+  const [isCrashed, setIsCrashed] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [pageData, setPageData] = useState([]);
 
   const crashButton = () => {
@@ -12,8 +18,8 @@ const Chart = ({ page, data }) => {
 
   useEffect(() => {
     const pageData = data
-      .filter((d) => d.current_page === `/${page}`)
-      .filter((d) => d.did_aww_snap === isCrashed);
+      .filter((d: any) => d.current_page === `/${page}`)
+      .filter((d: any) => d.did_aww_snap === isCrashed);
 
     setPageData(pageData);
     setIsLoading(false);
@@ -21,8 +27,8 @@ const Chart = ({ page, data }) => {
 
   const d = [
     {
-      x: pageData.map((item) => item.timestamp),
-      y: pageData.map((item) => item.bytes_used),
+      x: pageData.map((item: Item) => item.timestamp),
+      y: pageData.map((item: Item) => item.bytes_used),
       hoverinfo: "x+y",
       type: "scatter",
       fill: "tozeroy",
@@ -74,8 +80,8 @@ const Chart = ({ page, data }) => {
               {(
                 data
                   // .map((item) => parseInt(item.bytes_used))
-                  .map((item) => +item.bytes_used)
-                  .reduce((prev, next) => prev + next) / 1000
+                  .map((item: Item) => +item.bytes_used)
+                  .reduce((prev: number, next: number) => prev + next) / 1000
               ).toFixed(2)}
               GB
             </h3>

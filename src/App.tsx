@@ -3,6 +3,11 @@ import Chart from "./components/Chart";
 import Header from "./components/Header";
 import { useState, useEffect } from "react";
 
+export interface Item {
+  bytes_used: number | any;
+  timestamp: number | any;
+}
+
 function App() {
   const [data, setData] = useState([]);
 
@@ -11,7 +16,7 @@ function App() {
       const res = await fetch("/data.json");
       const data = await res.json();
 
-      const convertBytesAndTime = data.map((item) => {
+      const convertBytesAndTime = data.map((item: Item) => {
         item = {
           ...item,
           bytes_used: (item.bytes_used / 1048576).toFixed(2),
@@ -42,13 +47,6 @@ function App() {
         {pages.map((page) => (
           <Chart key={page} data={data} page={page} />
         ))}
-
-        {/* <Chart page={""} /> */}
-        {/* <Chart page={"data"} />
-        <Chart page={"player"} />
-        <Chart page={"analytics"} />
-        <Chart page={"processes"} />
-        <Chart page={"processes/editor"} /> */}
       </main>
     </div>
   );
